@@ -8,20 +8,17 @@ from bson import ObjectId
 
 crud_bp = Blueprint('crud', __name__)
 
-# משתנים גלובליים פשוטים
 df = None
 client = MongoClient('mongodb://localhost:27017/')
 db = client.terror_events
 
 
-# פונקציה פשוטה לטעינת הנתונים
 def load_data():
     global df
     data = list(db.events.find())
     df = pd.DataFrame(data)
 
     if len(df) > 0:
-        # שטוח של העמודות המקוננות
         df['attack_type'] = df['attack'].apply(lambda x: x['type'])
         df['target_type'] = df['attack'].apply(lambda x: x['target']['type'])
         df['country'] = df['location'].apply(lambda x: x['country'])
@@ -42,7 +39,6 @@ def create_event():
     try:
         data = request.get_json()
 
-        # יצירת מסמך למונגו
         doc = {
             "date": datetime.strptime(data['date'], '%Y-%m-%d'),
             "location": {
@@ -69,10 +65,8 @@ def create_event():
             "summary": data.get('summary', '')
         }
 
-        # הוספה למונגו
         result = db.events.insert_one(doc)
 
-        # טעינה מחדש של הנתונים
         load_data()
 
         return jsonify({"message": "האירוע נוצר בהצלחה", "id": str(result.inserted_id)}), 201

@@ -43,7 +43,6 @@ def casualties_by_region():
 
     m = folium.Map(location=[0, 0], zoom_start=2)
 
-    # Create color scale based on scores
     colormap = cm.LinearColormap(
         colors=['yellow', 'orange', 'red'],
         vmin=region_stats['score'].min(),
@@ -62,7 +61,7 @@ def casualties_by_region():
                 fill_opacity=2
             ).add_to(m)
 
-    colormap.add_to(m)  # Add color scale to map
+    colormap.add_to(m)
     return m._repr_html_()
 
 
@@ -110,10 +109,8 @@ def change_between_years(start_year, end_year):
         if region in region_coords.index:
             coords = region_coords.loc[region]
             if pd.notna(coords['latitude']) and pd.notna(coords['longitude']):
-                # Calculate average change for circle size
                 avg_change = yearly_changes.loc[region].mean()
 
-                # Create year-by-year change table
                 changes_html = '<table style="width:100%"><tr><th>Period</th><th>Change</th></tr>'
 
                 for year in range(start_year, end_year):
@@ -161,13 +158,11 @@ def active_groups_by_region(region):
 
     m = folium.Map(location=[0, 0], zoom_start=2)
 
-    # Calculate center of the region for legend placement
     avg_lat = region_data['latitude'].mean()
     avg_lng = region_data['longitude'].mean()
 
     colors = ['red', 'blue', 'green', 'purple', 'orange', 'yellow', 'cyan', 'magenta']
 
-    # Add events to map
     for i, (group, count) in enumerate(top_groups.items()):
         group_data = region_data[region_data['group'] == group]
 
@@ -181,7 +176,6 @@ def active_groups_by_region(region):
                     fill=True
                 ).add_to(m)
 
-    # Add legend at the bottom-right corner of the visible region
     legend_html = '<div style="position: fixed; bottom: 50px; right: 50px; background-color: white; padding: 10px; border: 1px solid grey; z-index: 1000;">'
     for i, group in enumerate(top_groups.index):
         legend_html += f'<p><span style="color:{colors[i % len(colors)]}">●</span> {group}: {top_groups[group]} attacks</p>'
@@ -189,7 +183,6 @@ def active_groups_by_region(region):
 
     m.get_root().html.add_child(folium.Element(legend_html))
 
-    # Zoom to region
     if pd.notna(avg_lat) and pd.notna(avg_lng):
         m.location = [avg_lat, avg_lng]
         m.zoom_start = 6
